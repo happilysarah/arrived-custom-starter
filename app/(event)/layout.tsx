@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
+import { Fraunces, Karla } from "next/font/google";
 import "../globals.css";
 
 import { EventShell } from "@/components/event-shell";
@@ -12,8 +12,16 @@ import { getPublicEvent } from "@/lib/happily/queries";
 // First-party analytics proxy host.
 const ANALYTICS_HOST = "https://hx.happily.events";
 
-const openSans = Open_Sans({
-  variable: "--font-open-sans",
+// Warm, organic pairing: a soft-edged display serif for headings, a
+// humanist grotesque for body copy.
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  axes: ["opsz", "SOFT", "WONK"],
+});
+
+const karla = Karla({
+  variable: "--font-karla",
   subsets: ["latin"],
 });
 
@@ -47,22 +55,24 @@ export default async function EventLayout({
   // the event has no analytics configured.
   const analyticsId = env === "prod" ? eventData.event.analytics_id : null;
 
+  // Warm organic fallback palette: espresso, terracotta, and sage over a
+  // linen base. Used only when the event record doesn't set its own styles.
   const eventVars = {
-    "--event-primary-bg": styleValue(styles, "primaryBg", "#171717"),
-    "--event-primary-text": styleValue(styles, "primaryText", "#ffffff"),
-    "--event-secondary-bg": styleValue(styles, "secondaryBg", "#f4f4f5"),
-    "--event-secondary-text": styleValue(styles, "secondaryText", "#171717"),
-    "--event-accent-bg": styleValue(styles, "accentBg", "#171717"),
-    "--event-accent-text": styleValue(styles, "accentText", "#ffffff"),
-    "--event-base-bg": styleValue(styles, "baseBg", "#ffffff"),
-    "--event-base-text": styleValue(styles, "baseText", "#171717"),
-    "--event-border-radius": styleValue(styles, "borderRadius", "8px"),
+    "--event-primary-bg": styleValue(styles, "primaryBg", "#3A2E22"),
+    "--event-primary-text": styleValue(styles, "primaryText", "#FBF3E7"),
+    "--event-secondary-bg": styleValue(styles, "secondaryBg", "#6B7A5E"),
+    "--event-secondary-text": styleValue(styles, "secondaryText", "#FBF3E7"),
+    "--event-accent-bg": styleValue(styles, "accentBg", "#C1592E"),
+    "--event-accent-text": styleValue(styles, "accentText", "#FBF3E7"),
+    "--event-base-bg": styleValue(styles, "baseBg", "#FBF3E7"),
+    "--event-base-text": styleValue(styles, "baseText", "#33261C"),
+    "--event-border-radius": styleValue(styles, "borderRadius", "22px"),
   } as CSSProperties;
 
   return (
     <html
       lang="en"
-      className={`${openSans.variable} ${openSans.className} h-full antialiased`}
+      className={`${fraunces.variable} ${karla.variable} ${karla.className} h-full antialiased`}
     >
       <body style={eventVars} className="min-h-full flex flex-col">
         {preview && <PreviewBanner />}

@@ -71,7 +71,7 @@ export function EventPage({ eventData, eventId, env }: EventPageProps) {
           wrapperClassName="bg-(--event-accent-bg) text-(--event-accent-text)"
         >
           {form.form_title ? (
-            <h2 className="text-4xl font-semibold">
+            <h2 className="font-heading text-4xl font-semibold">
               {text(form.form_title, "Register")}
             </h2>
           ) : null}

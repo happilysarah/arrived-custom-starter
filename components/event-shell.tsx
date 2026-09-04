@@ -33,7 +33,7 @@ export function EventShell({ eventData, children }: EventShellProps) {
     buttonLinks.heroCTA.text;
 
   return (
-    <div className="flex min-h-screen flex-col bg-(--event-base-bg) text-(--event-base-text)">
+    <div className="organic-grain flex min-h-screen flex-col bg-(--event-base-bg) text-(--event-base-text)">
       <Header
         logo={event.logo_url}
         logoAlt={`${event.name} logo`}

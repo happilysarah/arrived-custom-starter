@@ -30,7 +30,7 @@ export function ContentSection({
           alt=""
           width={800}
           height={600}
-          className="aspect-4/3 w-full rounded-none object-cover"
+          className="aspect-4/3 w-full rounded-(--event-border-radius) object-cover"
         />
       ) : null}
     </Container>

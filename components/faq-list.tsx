@@ -23,7 +23,7 @@ export function FaqList({ faqs }: FaqListProps) {
           value={String(faq.id)}
           className="border-t-0 border-x-0 border-b px-0 border-(--event-base-text) bg-(--event-base-bg) pb-3 text-(--event-base-text)"
         >
-          <AccordionTrigger className="font-semibold hover:no-underline">
+          <AccordionTrigger className="font-heading font-semibold hover:no-underline">
             {faq.question}
           </AccordionTrigger>
           <AccordionContent className="text-(--event-base-text)/90">

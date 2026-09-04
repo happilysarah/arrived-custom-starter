@@ -36,7 +36,9 @@ export function SpeakerCard({ speaker }: SpeakerCardProps) {
             className="mb-4 aspect-square w-full rounded-(--event-border-radius) object-cover"
           />
         ) : null}
-        <h3 className="text-xl font-semibold">{speaker.name}</h3>
+        <h3 className="font-heading text-xl font-semibold">
+          {speaker.name}
+        </h3>
         <p className="mt-1 text-sm text-(--event-base-text)/60">
           {[speaker.title, speaker.company].filter(Boolean).join(", ")}
         </p>
@@ -80,7 +82,7 @@ export function SpeakerCard({ speaker }: SpeakerCardProps) {
             </div>
           ) : null}
 
-          <DialogTitle className="text-lg font-semibold sm:text-xl">
+          <DialogTitle className="font-heading text-lg font-semibold sm:text-xl">
             {speaker.name}
           </DialogTitle>
 
