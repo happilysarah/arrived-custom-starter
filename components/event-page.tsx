@@ -1,130 +1,90 @@
 import type { HappilyEnv, PublicEventData } from "@/lib/happily/types";
 
-import { AgendaList } from "./agenda-list";
-import { Container } from "./container";
-import { ContentSection } from "./content-section";
-import { FaqList } from "./faq-list";
-import { hasText, text } from "./helpers";
-import { HeroSection } from "./hero-section";
-import { Markdown } from "./markdown";
-import { RegistrationForm } from "./registration-form";
-import { SectionHeading } from "./section-heading";
-import { SpeakersGrid } from "./speakers-grid";
-import { SponsorsGrid } from "./sponsors-grid";
-
 type EventPageProps = {
   eventData: PublicEventData;
   eventId: string;
   env: HappilyEnv;
 };
 
-export function EventPage({ eventData, eventId, env }: EventPageProps) {
-  const { event, form, sessions, speakers, sponsors, faqs, tracks } = eventData;
-  const content = event.content;
+const program = [
+  ["14:00", "Doors + Medellín street lunch", "eat first"],
+  ["15:00", "The anti-conference opening", "15 min"],
+  ["15:20", "How culture gets built now", "live conversation"],
+  ["16:00", "360° demos from the floor", "no stage"],
+  ["17:00", "Medellín field sessions", "city breakouts"],
+  ["19:30", "Family meal", "long tables"],
+  ["21:30", "ARRIVED LIVE", "phones up"],
+  ["00:00", "Keep going", "you decide"],
+];
 
+const people = [
+  ["FOUNDERS", "building new rituals"],
+  ["ARTISTS", "who understand crowds"],
+  ["PRODUCERS", "who make impossible happen"],
+  ["DESIGNERS", "obsessed with details"],
+  ["DJs", "because timing is everything"],
+  ["CHEFS", "hospitality is the medium"],
+  ["TECH", "building the new stack"],
+  ["YOU?", "300 people / curated hard"],
+];
+
+export function EventPage(_: EventPageProps) {
   return (
-    <main>
-      <HeroSection event={event} formActive={form?.is_active} />
+    <main className="summit-page">
+      <div className="summit-scanlines" aria-hidden="true" />
+      <div className="summit-noise" aria-hidden="true" />
+      <div className="summit-topbar">
+        <div className="summit-status"><span className="summit-dot" /><span>ARRIVED NETWORK / NODE 0027</span></div>
+        <span>MEDELLÍN CO / SIGNAL LIVE</span>
+      </div>
+      <nav className="summit-nav" aria-label="Main navigation">
+        <a className="summit-brand" href="#top" aria-label="Arrived Summit home">ARRIVED<sup>®</sup></a>
+        <div className="summit-navlinks">
+          <a href="#why">System</a><a href="#schedule">Program</a><a href="#room">Room</a>
+          <a className="summit-join" href="#rsvp">Request access</a>
+        </div>
+      </nav>
 
-      {hasText(content.aboutTitle) || hasText(content.aboutDescription) ? (
-        <ContentSection
-          id="about"
-          title={text(content.aboutTitle, "About")}
-          description={content.aboutDescription}
-          image={content.aboutImage}
-        />
-      ) : null}
-
-      {sessions.length ? (
-        <Container id="agenda">
-          <SectionHeading
-            title={text(content.agendaTitle, "Agenda")}
-            description={content.agendaDescription}
-          />
-          <div className="mt-8">
-            <AgendaList
-              sessions={sessions}
-              speakers={speakers}
-              tracks={tracks}
-              event={event}
-            />
+      <section className="summit-hero" id="top">
+        <div className="summit-window">
+          <div className="summit-windowbar"><span>arrived_summit_medellin.exe</span><div className="summit-controls" aria-hidden="true"><i /><i /><i /></div></div>
+          <div className="summit-hero-grid">
+            <div className="summit-hero-copy">
+              <span className="summit-eyebrow">one room / one city / no spectators</span>
+              <h1><span>ARRIVED</span><span>SUMMIT</span></h1>
+              <p className="summit-deck">A live summit for the people <strong>building culture IRL.</strong> Medellín. 300 people. Zero ballroom energy.</p>
+              <div className="summit-meta"><span>Medellín / Colombia</span><span>June 2027</span><span>300 humans</span><span>talks + dinner + live room</span></div>
+            </div>
+            <div className="summit-visual" aria-label="Abstract pastel orb reading Medellín 2027">
+              <div className="summit-blob" /><div className="summit-orbit" /><div className="summit-sat">NO<br />GREEN<br />ROOM</div>
+              <div className="summit-visual-note"><span>FOUNDERS / ARTISTS / PRODUCERS / DJS / DESIGNERS / CHEFS</span><b>360°</b></div>
+            </div>
           </div>
-        </Container>
-      ) : null}
+        </div>
+      </section>
 
-      {speakers.length ? (
-        <Container id="speakers">
-          <SectionHeading
-            title={text(content.speakersTitle, "Speakers")}
-            description={content.speakersDescription}
-          />
-          <div className="mt-8">
-            <SpeakersGrid speakers={speakers} />
-          </div>
-        </Container>
-      ) : null}
+      <div className="summit-ticker" aria-hidden="true"><span>THE ROOM IS THE CONTENT /// MEDELLÍN AFTER DARK /// HUMAN SIGNAL &gt; PANEL SIGNAL /// CAMERAS IN THE CROWD /// BUILD SOMETHING TOGETHER /// THE ROOM IS THE CONTENT /// MEDELLÍN AFTER DARK /// HUMAN SIGNAL &gt; PANEL SIGNAL /// CAMERAS IN THE CROWD /// BUILD SOMETHING TOGETHER /// </span></div>
 
-      {form ? (
-        <Container
-          id="register"
-          className="flex max-w-7xl flex-col items-center text-center"
-          wrapperClassName="bg-(--event-accent-bg) text-(--event-accent-text)"
-        >
-          {form.form_title ? (
-            <h2 className="text-4xl font-semibold">
-              {text(form.form_title, "Register")}
-            </h2>
-          ) : null}
-          {form.form_description ? (
-            <Markdown className="mt-3 text-base opacity-80 md:text-lg">
-              {form.form_description}
-            </Markdown>
-          ) : null}
-          <div className="mt-10 flex w-full items-center justify-center">
-            <RegistrationForm
-              eventId={eventId}
-              env={env}
-              form={form}
-              redirectTo="/confirmation"
-              buttonText={form.form_button_text}
-            />
-          </div>
-        </Container>
-      ) : null}
+      <section className="summit-section" id="why">
+        <div className="summit-micro">01 / system premise</div><h2>NOT A<br />CONFERENCE.</h2>
+        <div className="summit-grid2">
+          <div className="summit-lede">A summit with the pressure turned up — intimate enough to interrupt, alive enough to change shape.</div>
+          <div className="summit-systemcard"><div className="summit-systembar"><span>session_info.dat</span><span>status: active</span></div><div className="summit-systembody">ARRIVED SUMMIT puts founders, artists, creative technologists, hospitality obsessives and operators into one live system. Speakers stand in the crowd. Cameras move through the room. Dinner bleeds into music. Medellín isn&apos;t a backdrop; the city is part of the format.<div className="summit-pillrow">{["Experiential", "Hospitality", "AI + design", "Community", "Nightlife", "LatAm"].map((pill) => <span key={pill}>{pill}</span>)}</div></div></div>
+        </div>
+      </section>
 
-      {hasText(content.companyAboutTitle) ||
-      hasText(content.companyAboutDescription) ? (
-        <ContentSection
-          id="host"
-          title={text(content.companyAboutTitle, "About the Host")}
-          description={content.companyAboutDescription}
-          image={content.companyAboutImage}
-        />
-      ) : null}
+      <section className="summit-section summit-dark" id="schedule">
+        <div className="summit-micro">02 / live program</div><h2>ONE DAY.<br />NO DEAD ZONES.</h2>
+        <div className="summit-schedule">{program.map(([time, event, tag]) => <div className="summit-slot" key={time}><div>{time}</div><strong>{event}</strong><span>{tag}</span></div>)}</div>
+      </section>
 
-      {sponsors.length ? (
-        <Container id="sponsors">
-          <SectionHeading
-            title={text(content.sponsorsTitle, "Sponsors")}
-            description={content.sponsorsDescription}
-          />
-          <div className="mt-8">
-            <SponsorsGrid sponsors={sponsors} />
-          </div>
-        </Container>
-      ) : null}
+      <section className="summit-section" id="room">
+        <div className="summit-micro">03 / people protocol</div><h2>THE ROOM<br />IS THE LINEUP.</h2>
+        <div className="summit-people">{people.map(([name, description], index) => <article className="summit-person" key={name}><span className="summit-num">{String(index + 1).padStart(2, "0")}</span><div><strong>{name}</strong><small>{description}</small></div><i aria-hidden="true" /></article>)}</div>
+      </section>
 
-      {faqs.length ? (
-        <Container id="faqs">
-          <SectionHeading
-            title={text(content.faqsTitle, "FAQs")}
-            description={content.faqsDescription}
-          />
-          <div className="mt-8">
-            <FaqList faqs={faqs} />
-          </div>
-        </Container>
-      ) : null}
+      <section className="summit-cta" id="rsvp"><div className="summit-micro">04 / access request</div><h2>MEET US<br />IN MEDELLÍN.</h2><p>For people who think the event is the product. Request access for the first drop: venue, room list, field sessions and after-hours.</p><a href="mailto:hello@happily.events?subject=ARRIVED%20SUMMIT%20MEDELLIN">REQUEST ACCESS →</a></section>
+      <footer className="summit-footer"><span>ARRIVED® / A HAPPILY COMPANY</span><span>MEDELLÍN / COLOMBIA / 2027</span><span>HUMAN SIGNAL ACTIVE</span></footer>
     </main>
   );
 }
