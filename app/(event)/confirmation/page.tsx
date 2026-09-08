@@ -1,11 +1,13 @@
-import Image from "next/image";
-
 import { AddToCalendar } from "@/components/add-to-calendar";
+import { ArchFrame } from "@/components/arch-frame";
 import { AttendeesList } from "@/components/attendees-list";
 import { Container } from "@/components/container";
+import { RETREAT_COPY } from "@/components/copy";
 import { EventDetails } from "@/components/event-details";
 import { text } from "@/components/helpers";
 import { Markdown } from "@/components/markdown";
+import { SunBurst } from "@/components/ornament";
+import { Sticker } from "@/components/sticker";
 import type { CalendarEvent } from "@/lib/happily/calendar";
 import { getEventId, resolveEventEnv } from "@/lib/happily/config";
 import { getPublicAttendees, getPublicEvent } from "@/lib/happily/queries";
@@ -39,38 +41,62 @@ export default async function ConfirmationPage() {
 
   return (
     <main>
-      <Container className="grid max-w-7xl gap-10 text-center">
-        <section>
+      <Container
+        wrapperClassName="relative isolate overflow-hidden bg-(--event-accent-bg) text-(--event-accent-text) border-b-[4px] border-(--jaipur-ink)"
+        className="grid max-w-4xl justify-items-center gap-10 text-center"
+      >
+        <SunBurst
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-52 left-1/2 -z-10 size-[42rem] -translate-x-1/2 text-(--jaipur-ink)/8"
+        />
+
+        <section className="flex w-full flex-col items-center">
           {content.confirmationImage ? (
-            <Image
+            <ArchFrame
               src={content.confirmationImage}
-              alt=""
-              width={800}
-              height={600}
-              className="mb-8 aspect-4/3 w-full rounded-(--event-border-radius) object-cover"
+              priority
+              shadow
+              sizes="(min-width: 640px) 24rem, 100vw"
+              className="mb-10 aspect-3/4 w-full max-w-sm"
             />
           ) : null}
-          <h1 className="text-5xl font-semibold">
-            {text(content.confirmationTitle, "You're registered")}
+
+          <Sticker
+            rotate={-4}
+            className="bg-(--jaipur-pink) text-(--jaipur-plaster)"
+          >
+            {text(event.location, RETREAT_COPY.location)}
+          </Sticker>
+
+          <h1 className="brut-display mt-6 text-5xl sm:text-7xl">
+            {text(content.confirmationTitle, "Your room is held")}
           </h1>
-          <EventDetails event={event} />
+
+          <EventDetails event={event} className="mt-8 justify-center" />
+
           {content.confirmationDescription ? (
-            <Markdown className="mt-5 text-lg opacity-80">
+            <Markdown className="mt-7 max-w-2xl text-left text-base leading-relaxed md:text-lg">
               {content.confirmationDescription}
             </Markdown>
           ) : null}
+
           {calendarEvent ? (
-            <AddToCalendar event={calendarEvent} className="mt-8" />
+            <AddToCalendar event={calendarEvent} className="mt-10" />
           ) : null}
         </section>
+      </Container>
 
-        {attendees?.attendees.length ? (
+      {attendees?.attendees.length ? (
+        <Container
+          wrapperClassName="pattern-stripe bg-(--event-base-bg) border-b-[4px] border-(--jaipur-ink)"
+          className="max-w-5xl"
+        >
           <AttendeesList
             attendees={attendees.attendees}
-            title={text(content.attendeesListTitle, "Who's attending")}
+            title={text(content.attendeesListTitle, "Who's coming")}
           />
-        ) : null}
-      </Container>
+        </Container>
+      ) : null}
     </main>
   );
 }

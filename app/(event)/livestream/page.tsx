@@ -1,8 +1,12 @@
 import { notFound } from "next/navigation";
 
 import { Container } from "@/components/container";
+import { RETREAT_COPY } from "@/components/copy";
 import { EventDetails } from "@/components/event-details";
+import { text } from "@/components/helpers";
 import { LivestreamGate } from "@/components/livestream-gate";
+import { SectionHeading } from "@/components/section-heading";
+import { Sticker } from "@/components/sticker";
 import { getEventId, resolveEventEnv } from "@/lib/happily/config";
 import { getPublicEvent } from "@/lib/happily/queries";
 
@@ -16,6 +20,8 @@ export default async function LivestreamPage() {
     notFound();
   }
 
+  const { event } = eventData;
+
   return (
     <LivestreamGate
       eventId={eventId}
@@ -24,39 +30,46 @@ export default async function LivestreamPage() {
       formActive={!!livestream.form?.is_active}
     >
       <main>
-        <Container className="grid max-w-7xl gap-8">
+        <Container
+          wrapperClassName="bg-(--event-base-bg) border-b-[4px] border-(--jaipur-ink)"
+          className="grid max-w-7xl gap-10"
+        >
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em]">
-              Livestream
-            </p>
-            <h1 className="mt-3 text-5xl font-semibold">
-              {eventData.event.name}
-            </h1>
-            <EventDetails event={eventData.event} />
+            <Sticker rotate={-4} className="bg-(--jaipur-pink) text-(--jaipur-plaster)">
+              Live now · {text(event.location, RETREAT_COPY.location)}
+            </Sticker>
+            <SectionHeading
+              className="mt-6"
+              eyebrow="Livestream"
+              title={event.name}
+            />
+            <EventDetails event={event} className="mt-8" />
           </div>
 
           {livestream.stream_url ? (
-            <div className="aspect-video overflow-hidden bg-black">
+            <div className="brut-frame-lg aspect-video overflow-hidden bg-(--jaipur-ink)">
               <iframe
                 src={livestream.stream_url}
-                title={`${eventData.event.name} livestream`}
+                title={`${event.name} livestream`}
                 allow="autoplay; fullscreen; picture-in-picture"
                 allowFullScreen
                 className="size-full"
               />
             </div>
           ) : (
-            <p>The livestream URL has not been published yet.</p>
+            <p className="brut-display brut-frame bg-(--jaipur-marigold) px-6 py-5 text-xl text-(--jaipur-ink)">
+              The stream hasn&apos;t gone live yet — check back shortly.
+            </p>
           )}
 
           {livestream.chat_url ? (
             <a
               href={livestream.chat_url}
-              className="font-semibold underline"
               target="_blank"
               rel="noreferrer"
+              className="brut-display brut-frame brut-lift justify-self-start bg-(--event-primary-bg) px-6 py-4 text-lg text-(--event-primary-text)"
             >
-              Open chat
+              Open chat →
             </a>
           ) : null}
         </Container>

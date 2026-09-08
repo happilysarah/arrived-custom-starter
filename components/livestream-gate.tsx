@@ -58,13 +58,14 @@ export function LivestreamGate({
             onPointerDownOutside={(e) => e.preventDefault()}
             onEscapeKeyDown={(e) => e.preventDefault()}
             onInteractOutside={(e) => e.preventDefault()}
+            className="rounded-none border-[4px] border-(--jaipur-ink) bg-(--event-base-bg) p-6 ring-0 shadow-[10px_10px_0_0_var(--jaipur-ink)] sm:max-w-lg"
           >
             <DialogHeader>
-              <DialogTitle className="text-2xl font-semibold">
+              <DialogTitle className="brut-display text-3xl">
                 {form.form_title ?? "Access livestream"}
               </DialogTitle>
               {form.form_description ? (
-                <DialogDescription className="whitespace-pre-line">
+                <DialogDescription className="mt-2 whitespace-pre-line text-(--event-base-text)/80">
                   {form.form_description}
                 </DialogDescription>
               ) : null}

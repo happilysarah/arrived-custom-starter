@@ -1,41 +1,62 @@
 import Image from "next/image";
 
+import { Marquee } from "./marquee";
+import { ScallopBar } from "./ornament";
+
 type FooterProps = {
-  baseTextColor: string;
+  /** Event name, set as the oversized outgoing wordmark. */
+  eventName: string;
+  /** Location line under the wordmark. */
+  location?: string | null;
+  /** Phrases for the closing ticker. */
+  marqueeItems: string[];
 };
 
-export function Footer({ baseTextColor }: FooterProps) {
-  const isLightText = isLight(baseTextColor);
-  const logo = isLightText
-    ? "/powered-by-happily-arrived-light.svg"
-    : "/powered-by-happily-arrived-dark.svg";
-
+export function Footer({ eventName, location, marqueeItems }: FooterProps) {
   return (
-    <footer className="z-10 mt-auto px-2 py-8">
-      <div className="flex flex-col items-center justify-center gap-6">
-        <a
-          href="https://teamhappily.com/arrived?ref=starter-kit"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            src={logo}
-            width={292}
-            height={55}
-            className="object-contain"
-            alt="Powered by Happily Arrived"
-            draggable={false}
-          />
-        </a>
+    <footer className="z-10 mt-auto">
+      <Marquee
+        items={marqueeItems}
+        durationSeconds={38}
+        wrapperClassName="bg-(--jaipur-marigold) text-(--jaipur-ink)"
+      />
+
+      <div className="relative bg-(--event-secondary-bg) text-(--event-secondary-text)">
+        {/* Jharokha eave biting into the top of the indigo band. */}
+        <ScallopBar
+          className="absolute inset-x-0 top-0 h-3 w-full text-(--jaipur-marigold)"
+          aria-hidden="true"
+        />
+
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 pt-16 pb-10 text-center sm:px-8">
+          <p className="brut-display text-4xl break-words sm:text-6xl lg:text-7xl">
+            {eventName}
+          </p>
+          {location ? (
+            <p className="brut-label text-(--event-secondary-text)/70">
+              {location}
+            </p>
+          ) : null}
+
+          {/* The indigo band is a dark surface, so this takes the "dark"
+              mark — the variant drawn in near-white and Happily violet. */}
+          <a
+            href="https://teamhappily.com/arrived?ref=starter-kit"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block border-[3px] border-(--event-secondary-text) px-4 py-3"
+          >
+            <Image
+              src="/powered-by-happily-arrived-dark.svg"
+              width={292}
+              height={55}
+              className="h-8 w-auto object-contain"
+              alt="Powered by Happily Arrived"
+              draggable={false}
+            />
+          </a>
+        </div>
       </div>
     </footer>
   );
-}
-
-function isLight(hex: string) {
-  const c = hex.replace("#", "");
-  const r = parseInt(c.substring(0, 2), 16);
-  const g = parseInt(c.substring(2, 4), 16);
-  const b = parseInt(c.substring(4, 6), 16);
-  return (r * 299 + g * 587 + b * 114) / 1000 > 128;
 }

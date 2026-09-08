@@ -1,41 +1,51 @@
+import { CalendarDaysIcon, ClockIcon, MapPinIcon } from "lucide-react";
+
 import type { PublicEvent } from "@/lib/happily/types";
+import { cn } from "@/lib/utils";
 
 import { eventDateRange, eventTimeRange } from "./helpers";
 
 type EventDetailsProps = {
   event: PublicEvent;
   includeLocation?: boolean;
+  className?: string;
 };
 
+/**
+ * Where / when, as hard-framed chips rather than a bullet-separated line.
+ * The per-field `display_settings` gates are sub-features of this strip, so
+ * they stay here rather than moving up to the composition layer.
+ */
 export function EventDetails({
   event,
   includeLocation = true,
+  className,
 }: EventDetailsProps) {
   const date = eventDateRange(event);
   const time = eventTimeRange(event);
   const ds = event.display_settings;
 
-  const elements = [
-    includeLocation &&
-      event.location &&
-      (ds.displayLocation ?? true) &&
-      event.location,
-    date && (ds.displayDate ?? true) && date,
-    time && (ds.displayTime ?? true) && time,
-  ].filter(Boolean) as string[];
+  const items = [
+    includeLocation && (ds.displayLocation ?? true) && event.location
+      ? { icon: MapPinIcon, value: event.location }
+      : null,
+    (ds.displayDate ?? true) && date ? { icon: CalendarDaysIcon, value: date } : null,
+    (ds.displayTime ?? true) && time ? { icon: ClockIcon, value: time } : null,
+  ].filter((item) => item !== null);
 
-  if (elements.length === 0) return null;
+  if (items.length === 0) return null;
 
   return (
-    <p className="py-4 text-sm font-medium uppercase tracking-wide sm:text-base">
-      {elements.map((element, index) => (
-        <span key={index}>
-          {element}
-          {index < elements.length - 1 && (
-            <span className="mx-2 opacity-40">&bull;</span>
-          )}
-        </span>
+    <ul className={cn("flex flex-wrap gap-3", className)}>
+      {items.map(({ icon: Icon, value }) => (
+        <li
+          key={value}
+          className="brut-label brut-frame-flat flex items-center gap-2 bg-(--event-base-bg) px-3 py-2 text-(--event-base-text)"
+        >
+          <Icon aria-hidden="true" className="size-3.5 shrink-0" strokeWidth={3} />
+          {value}
+        </li>
       ))}
-    </p>
+    </ul>
   );
 }

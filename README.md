@@ -79,6 +79,50 @@ If analytics is configured for your event in Happily, the starter automatically 
 - `lib/happily/` — API client and data queries. Leave alone unless you're pulling new fields from the API.
 - `app/globals.css` — global styles. Event-specific colors come from CSS variables (`--event-primary-bg`, `--event-accent-text`, etc.) set automatically from your event's design tokens.
 
+## This fork: Pink City Retreat (maximalist brutalism)
+
+This copy of the starter has been redesigned as a Jaipur retreat site. Content still
+comes from the Happily CMS — only the presentation layer changed.
+
+**The look:** square corners everywhere, 3–4px ink borders with hard offset shadows,
+Rajasthani colour blocking (Jaipur pink, marigold, Sanganeri indigo, emerald,
+terracotta, plus Happily's own violet), oversized Archivo Black headings, Space Mono
+labels, block-print background fills and scrolling marquee bands. Photos are clipped
+into a *jharokha* arch — the cusped Rajasthani window shape.
+
+**Where the design lives:**
+
+- `components/theme.ts` — the nine palette values, mapped onto the `--event-*` CSS
+  variables in `app/(event)/layout.tsx`.
+- `app/globals.css` — the brutalist layer: `brut-frame`, `brut-frame-lg`,
+  `brut-frame-flat`, `brut-lift`, `brut-display`, `brut-label`, the
+  `pattern-blockprint` / `pattern-stripe` / `pattern-checker` fills, and the marquee
+  keyframes. Ornament colours live here as `--jaipur-*` / `--happily-*` variables.
+- `components/ornament.tsx` — the arch, block-print stamp, sunburst and scallop
+  motifs, plus the shared arch clip path.
+- `components/arch-frame.tsx` — an image clipped to the arch, with its ink outline
+  and offset slab.
+- `components/marquee.tsx`, `components/sticker.tsx` — the ticker strips and the
+  rotated pasted-on labels.
+- `components/copy.ts` — retreat-voice fallbacks for section headings, nav labels and
+  marquee phrases. **Anything the CMS supplies always wins**; these only fill gaps.
+
+**Two deliberate deviations from the stock starter:**
+
+1. **The palette is pinned, not read from `event.styles`.** The design depends on
+   specific colour relationships, and a default CMS palette of `#171717` on `#ffffff`
+   would flatten it to greyscale. To hand control back to the CMS, swap the
+   `JAIPUR_THEME` lookups in `app/(event)/layout.tsx` for
+   `styleValue(styles, "<key>", JAIPUR_THEME.<key>)`.
+2. **Three components use `radix-ui` primitives directly** instead of the
+   `components/ui/` skins — the mobile menu (as before), the agenda's day tabs, and
+   the speaker bio dialog. Those skins' active-state and overlay rules are
+   group-scoped and out-specify anything passed via `className`, so styling them
+   through the wrapper silently did nothing. `components/ui/` is left untouched and
+   upgrade-safe.
+
+Motion (marquees, button press) is disabled under `prefers-reduced-motion`.
+
 ## Customizing
 
 - **Colors and fonts.** Design tokens come from your event's settings in Happily, applied as CSS variables in `app/(event)/layout.tsx`. Hardcode in components only when you want a per-section override.

@@ -2,9 +2,10 @@ import type { ReactNode } from "react";
 
 import type { PublicEventData } from "@/lib/happily/types";
 
+import { RETREAT_COPY } from "./copy";
 import { Footer } from "./footer";
 import { Header } from "./header";
-import { styleValue, text } from "./helpers";
+import { text } from "./helpers";
 import type { NavLinkItem } from "./navbar";
 
 type EventShellProps = {
@@ -14,16 +15,20 @@ type EventShellProps = {
 
 export function EventShell({ eventData, children }: EventShellProps) {
   const { event } = eventData;
-  const styles = event.styles;
+  const { nav: navCopy } = RETREAT_COPY;
 
+  // Short labels here; hrefs must keep matching the section ids set in
+  // event-page.tsx.
   const nav: NavLinkItem[] = [
-    { label: "About", href: "/#about" },
-    { label: "Agenda", href: "/#agenda" },
-    { label: "Speakers", href: "/#speakers" },
-    { label: "Host", href: "/#host" },
-    { label: "Sponsors", href: "/#sponsors" },
-    { label: "FAQ", href: "/#faq" },
-    ...(event.photos_toggle ? [{ label: "Gallery", href: "/photos" }] : []),
+    { label: navCopy.about, href: "/#about" },
+    { label: navCopy.agenda, href: "/#agenda" },
+    { label: navCopy.speakers, href: "/#speakers" },
+    { label: navCopy.host, href: "/#host" },
+    { label: navCopy.sponsors, href: "/#sponsors" },
+    { label: navCopy.faqs, href: "/#faqs" },
+    ...(event.photos_toggle
+      ? [{ label: navCopy.photos, href: "/photos" }]
+      : []),
   ];
 
   const buttonLinks = event.display_settings.buttonLinks;
@@ -32,11 +37,14 @@ export function EventShell({ eventData, children }: EventShellProps) {
     buttonLinks?.navCTA.display &&
     buttonLinks.heroCTA.text;
 
+  const location = text(event.location, RETREAT_COPY.location);
+
   return (
-    <div className="flex min-h-screen flex-col bg-(--event-base-bg) text-(--event-base-text)">
+    <div className="pattern-blockprint flex min-h-screen flex-col bg-(--event-base-bg) text-(--event-base-text)">
       <Header
         logo={event.logo_url}
         logoAlt={`${event.name} logo`}
+        fallbackWordmark={event.name}
         nav={nav}
         hideNavigation={event.display_settings.hideNavigation ?? false}
         ctaText={
@@ -45,7 +53,11 @@ export function EventShell({ eventData, children }: EventShellProps) {
         ctaHref={showCta ? "/#register" : undefined}
       />
       {children}
-      <Footer baseTextColor={styleValue(styles, "baseText", "#171717")} />
+      <Footer
+        eventName={event.name}
+        location={location}
+        marqueeItems={[...RETREAT_COPY.marquee]}
+      />
     </div>
   );
 }

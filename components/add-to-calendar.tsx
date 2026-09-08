@@ -71,18 +71,24 @@ export function AddToCalendar({ event, className }: AddToCalendarProps) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="min-h-12 rounded-(--event-border-radius) bg-(--event-primary-bg) text-base font-semibold text-(--event-primary-text) hover:bg-(--event-primary-bg)/85 px-5 py-3 transition"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className="brut-display brut-frame brut-lift min-h-12 bg-(--event-primary-bg) px-6 py-3 text-lg text-(--event-primary-text)"
       >
         Add to Calendar
       </button>
 
       {open ? (
-        <div className="absolute left-0 z-50 mt-2 w-56 border border-(--event-base-text)/10 rounded-sm bg-white py-1 shadow-lg">
+        <div
+          role="menu"
+          className="brut-frame absolute left-0 z-50 mt-3 w-60 bg-(--jaipur-plaster) py-1"
+        >
           {services.map((service) => (
             <button
               key={service.name}
               type="button"
-              className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-black transition hover:bg-black/5"
+              role="menuitem"
+              className="brut-label flex w-full items-center gap-3 px-4 py-3 text-left text-(--jaipur-ink) transition-colors hover:bg-(--jaipur-marigold)"
               onClick={() => {
                 const data = service.generate(event);
                 service.open(data);

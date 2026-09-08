@@ -1,8 +1,10 @@
 "use client";
 
+import { Tabs as TabsPrimitive } from "radix-ui";
 import { useMemo } from "react";
 
 import type { PublicEventData } from "@/lib/happily/types";
+import { cn } from "@/lib/utils";
 
 import {
   Accordion,
@@ -11,8 +13,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { eventTimeRange, formatEventDate } from "./helpers";
 import { Markdown } from "./markdown";
@@ -57,29 +57,53 @@ function initials(name: string) {
   return name
     .split(/\s+/)
     .slice(0, 2)
-    .map((w) => w[0])
+    .map((w) => w[0] ?? "")
     .join("")
     .toUpperCase();
 }
 
-function SpeakersList({ speakers }: { speakers: Speaker[] }) {
+function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <div className="md:col-span-7 md:col-start-4">
-      <div className="grid gap-4 pt-6 md:grid-cols-2">
+    <span className="brut-label brut-frame-flat inline-block bg-(--jaipur-marigold) px-2.5 py-1.5 text-(--jaipur-ink)">
+      {children}
+    </span>
+  );
+}
+
+function SpeakersList({
+  speakers,
+  divider,
+}: {
+  speakers: Speaker[];
+  /** Only rule off from a description — otherwise it doubles the panel's own
+      dashed top border. */
+  divider: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "mt-6 md:col-span-7 md:col-start-4",
+        divider && "border-t-[3px] border-dashed border-(--jaipur-ink)/30 pt-5",
+      )}
+    >
+      <p className="brut-label mb-4 opacity-70">Led by</p>
+      <div className="grid gap-4 sm:grid-cols-2">
         {speakers.map((speaker) => (
-          <div key={speaker.id} className="flex items-center gap-4 text-xs">
-            <Avatar className="size-14 shrink-0">
-              {speaker.image_url && (
-                <AvatarImage src={speaker.image_url} alt={speaker.name} />
-              )}
-              <AvatarFallback>{initials(speaker.name)}</AvatarFallback>
+          <div key={speaker.id} className="flex items-center gap-3">
+            <Avatar className="size-12 shrink-0 rounded-none border-[3px] border-(--jaipur-ink)">
+              <AvatarImage
+                src={speaker.image_url ?? undefined}
+                alt=""
+                className="rounded-none object-cover"
+              />
+              <AvatarFallback className="brut-label rounded-none bg-(--jaipur-indigo) text-(--jaipur-plaster)">
+                {initials(speaker.name)}
+              </AvatarFallback>
             </Avatar>
-            <div className="min-w-0 flex-1">
-              <p className="font-bold">{speaker.name}</p>
-              <p>
-                {speaker.title && <span>{speaker.title}</span>}
-                {speaker.title && speaker.company && <span>, </span>}
-                {speaker.company && <span>{speaker.company}</span>}
+            <div className="min-w-0">
+              <p className="brut-display text-base">{speaker.name}</p>
+              <p className="brut-label mt-1 truncate opacity-70">
+                {[speaker.title, speaker.company].filter(Boolean).join(", ")}
               </p>
             </div>
           </div>
@@ -101,8 +125,8 @@ function SessionAccordion({
   event: PublicEventData["event"];
 }) {
   return (
-    <Accordion type="single" collapsible className="font-body grid grid-cols-1">
-      {sessions.map((session) => {
+    <Accordion type="single" collapsible className="grid gap-5">
+      {sessions.map((session, index) => {
         const timeLabel = eventTimeRange({
           ...event,
           start_date: session.start_time,
@@ -118,58 +142,61 @@ function SessionAccordion({
           .map((ss) => speakerMap.get(ss.speaker_id))
           .filter((s): s is Speaker => s != null);
 
-        const hasContent =
+        const hasContent = Boolean(
           session.description ||
-          sessionSpeakers.length > 0 ||
-          track ||
-          session.location;
+            sessionSpeakers.length ||
+            track ||
+            session.location,
+        );
 
         return (
-          <AccordionItem value={session.id} key={session.id}>
+          <AccordionItem
+            value={session.id}
+            key={session.id}
+            className="brut-frame border-b-[3px] bg-(--event-base-bg) px-5 last:border-b-[3px]"
+          >
             <AccordionTrigger
               disabled={!hasContent}
-              className="w-full no-underline hover:no-underline md:grid md:grid-cols-10 md:gap-x-10 lg:gap-x-20"
+              className="w-full gap-4 py-5 no-underline hover:no-underline disabled:opacity-100 [&>svg]:size-6 [&>svg]:stroke-[3]"
             >
-              <div className="font-heading hidden text-sm md:col-span-3 md:flex md:flex-col md:text-lg lg:text-xl">
-                <p className="text-left">{timeLabel}</p>
-              </div>
-              <div className="flex w-full flex-col items-start text-left md:col-span-6">
-                <p className="font-heading text-left text-sm md:hidden">
-                  {timeLabel}
-                </p>
-                <p className="text-base font-semibold tracking-wider md:text-lg lg:text-xl">
+              {/* One wrapper rather than two trigger children: the trigger is a
+                  <button>, so the row must stay phrasing content, and stacking
+                  it directly would push the chevron below the title on mobile. */}
+              <span className="flex w-full flex-col gap-3 md:grid md:grid-cols-10 md:items-center md:gap-x-8 md:gap-y-0">
+                <span className="flex items-center gap-3 md:col-span-3">
+                  <span className="brut-label bg-(--jaipur-pink) px-2 py-1.5 text-(--jaipur-plaster)">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="brut-label text-sm tracking-[0.08em]">
+                    {timeLabel}
+                  </span>
+                </span>
+                <span className="brut-display text-left text-xl md:col-span-6 md:text-2xl">
                   {session.name}
-                </p>
-              </div>
+                </span>
+              </span>
             </AccordionTrigger>
-            <AccordionContent className="md:grid md:grid-cols-10 md:gap-x-10 md:pb-6 lg:gap-x-20">
-              <div className="col-span-3 flex flex-wrap gap-2">
-                {track && (
-                  <Badge
-                    variant="secondary"
-                    className="cursor-auto rounded-sm font-normal"
-                  >
-                    {track.name}
-                  </Badge>
-                )}
-                {session.location && (
-                  <Badge
-                    variant="secondary"
-                    className="cursor-auto rounded-sm font-normal"
-                  >
-                    {session.location}
-                  </Badge>
-                )}
-              </div>
 
-              {session.description && (
-                <div className="col-span-7 col-start-4 pt-3 text-sm leading-relaxed tracking-wide">
+            <AccordionContent className="border-t-[3px] border-dashed border-(--jaipur-ink)/30 pt-5 pb-6 md:grid md:grid-cols-10 md:gap-x-8">
+              {track || session.location ? (
+                <div className="flex flex-wrap items-start gap-2 md:col-span-3">
+                  {track ? <Chip>{track.name}</Chip> : null}
+                  {session.location ? <Chip>{session.location}</Chip> : null}
+                </div>
+              ) : null}
+
+              {session.description ? (
+                <div className="col-span-7 col-start-4 pt-4 text-base leading-relaxed md:pt-0">
                   <Markdown>{session.description}</Markdown>
                 </div>
-              )}
-              {sessionSpeakers.length > 0 && (
-                <SpeakersList speakers={sessionSpeakers} />
-              )}
+              ) : null}
+
+              {sessionSpeakers.length > 0 ? (
+                <SpeakersList
+                  speakers={sessionSpeakers}
+                  divider={Boolean(session.description)}
+                />
+              ) : null}
             </AccordionContent>
           </AccordionItem>
         );
@@ -208,45 +235,47 @@ export function AgendaList({
 
   if (days.length <= 1) {
     return (
-      <div className="pt-5">
-        <SessionAccordion
-          sessions={sorted}
-          speakerMap={speakerMap}
-          trackMap={trackMap}
-          event={event}
-        />
-      </div>
+      <SessionAccordion
+        sessions={sorted}
+        speakerMap={speakerMap}
+        trackMap={trackMap}
+        event={event}
+      />
     );
   }
 
   return (
-    <div className="pt-5">
-      <Tabs defaultValue={days[0][0]}>
-        <TabsList
-          variant="line"
-          className="size-full justify-start overflow-x-auto"
-        >
-          {days.map(([dayLabel]) => (
-            <TabsTrigger
-              key={dayLabel}
-              value={dayLabel}
-              className="w-full py-1.5 lg:py-1 lg:text-lg"
-            >
-              {dayLabel}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {days.map(([dayLabel, daySessions]) => (
-          <TabsContent key={dayLabel} value={dayLabel}>
-            <SessionAccordion
-              sessions={daySessions}
-              speakerMap={speakerMap}
-              trackMap={trackMap}
-              event={event}
-            />
-          </TabsContent>
+    // Radix directly rather than components/ui/tabs: that skin's active-state
+    // rules are group-scoped (`group-data-[variant=…]/tabs-list:data-active:`)
+    // and out-specify anything passed through className, so the day chips
+    // silently kept the default look. Same approach mobile-menu.tsx takes with
+    // the Dialog primitive.
+    <TabsPrimitive.Root defaultValue={days[0][0]}>
+      <TabsPrimitive.List className="mb-10 flex flex-wrap gap-3">
+        {days.map(([dayLabel], index) => (
+          <TabsPrimitive.Trigger
+            key={dayLabel}
+            value={dayLabel}
+            className="brut-label brut-frame-flat cursor-pointer bg-(--event-base-bg) px-4 py-3 text-(--event-base-text) transition-colors hover:bg-(--jaipur-marigold) data-[state=active]:bg-(--jaipur-indigo) data-[state=active]:text-(--jaipur-plaster) data-[state=active]:shadow-[5px_5px_0_0_var(--jaipur-ink)]"
+          >
+            <span className="mr-2 opacity-60">
+              Day {String(index + 1).padStart(2, "0")}
+            </span>
+            {dayLabel}
+          </TabsPrimitive.Trigger>
         ))}
-      </Tabs>
-    </div>
+      </TabsPrimitive.List>
+
+      {days.map(([dayLabel, daySessions]) => (
+        <TabsPrimitive.Content key={dayLabel} value={dayLabel}>
+          <SessionAccordion
+            sessions={daySessions}
+            speakerMap={speakerMap}
+            trackMap={trackMap}
+            event={event}
+          />
+        </TabsPrimitive.Content>
+      ))}
+    </TabsPrimitive.Root>
   );
 }

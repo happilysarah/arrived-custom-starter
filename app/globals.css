@@ -11,8 +11,9 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-open-sans);
-  --font-mono: monospace;
-  --font-heading: var(--font-sans);
+  --font-mono: var(--font-space-mono), ui-monospace, monospace;
+  --font-display: var(--font-archivo-black), var(--font-open-sans), sans-serif;
+  --font-heading: var(--font-display);
   --font-body: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -130,5 +131,194 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* ==========================================================================
+   JAIPUR RETREAT — maximalist brutalist layer
+   --------------------------------------------------------------------------
+   Everything below is this fork's design system: hard-edged frames, offset
+   ink shadows, Sanganeri block-print fills and marquee motion. The palette
+   itself is pinned in `components/theme.ts` and mapped onto the `--event-*`
+   custom properties in `app/(event)/layout.tsx`.
+   ========================================================================== */
+
+:root {
+  /* Ornament palette — fixed accents that sit alongside the --event-* pairs.
+     These are motif colours (block-print fills, arch outlines, sticker
+     backgrounds), not theme slots, so they don't belong in event.styles. */
+  --jaipur-ink: #150f0b;
+  --jaipur-plaster: #f7eedd;
+  --jaipur-pink: #d81e5b;
+  --jaipur-marigold: #f5b301;
+  --jaipur-indigo: #1b2a6b;
+  --jaipur-emerald: #0b7a5c;
+  --jaipur-terracotta: #e2653c;
+
+  /* Happily's own violet, lifted from the bundled "Powered by Happily
+     Arrived" marks in public/ — the one piece of first-party brand colour
+     that ships with this starter. Used as the fifth colour block so the
+     retreat palette still ties back to the parent brand. */
+  --happily-violet: #5625c0;
+  --happily-violet-light: #7761e2;
+
+  /* Brutalist frame geometry. Two weights: standard and loud. */
+  --brut-border: 3px;
+  --brut-border-lg: 4px;
+  --brut-offset: 6px;
+  --brut-offset-lg: 10px;
+}
+
+/* -- Frames ---------------------------------------------------------------
+   A hard ink border plus a solid offset shadow — no blur, no radius. The
+   `-lift` variants animate the shadow closed on hover/press, which is what
+   makes brutalist buttons feel physical. */
+
+@utility brut-frame {
+  border: var(--brut-border) solid var(--jaipur-ink);
+  border-radius: 0;
+  box-shadow: var(--brut-offset) var(--brut-offset) 0 0 var(--jaipur-ink);
+}
+
+@utility brut-frame-lg {
+  border: var(--brut-border-lg) solid var(--jaipur-ink);
+  border-radius: 0;
+  box-shadow: var(--brut-offset-lg) var(--brut-offset-lg) 0 0 var(--jaipur-ink);
+}
+
+@utility brut-frame-flat {
+  border: var(--brut-border) solid var(--jaipur-ink);
+  border-radius: 0;
+}
+
+@utility brut-lift {
+  transition:
+    box-shadow 120ms ease-out,
+    transform 120ms ease-out;
+
+  &:hover {
+    transform: translate(2px, 2px);
+    box-shadow: calc(var(--brut-offset) - 2px) calc(var(--brut-offset) - 2px) 0
+      0 var(--jaipur-ink);
+  }
+
+  &:active {
+    transform: translate(var(--brut-offset), var(--brut-offset));
+    box-shadow: 0 0 0 0 var(--jaipur-ink);
+  }
+}
+
+/* Reduced-motion users still get the frame, just without the travel. */
+@media (prefers-reduced-motion: reduce) {
+  .brut-lift {
+    transition: none;
+  }
+
+  .brut-lift:hover,
+  .brut-lift:active {
+    transform: none;
+  }
+}
+
+/* -- Type -----------------------------------------------------------------
+   Display type is set tight, uppercase and oversized; `brut-display` is the
+   one place that geometry lives so headings stay consistent across sections. */
+
+@utility brut-display {
+  font-family: var(--font-display);
+  font-weight: 400; /* Archivo Black ships a single, already-heavy weight. */
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.92;
+}
+
+@utility brut-label {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.6875rem;
+  line-height: 1.2;
+}
+
+/* -- Block-print fills ----------------------------------------------------
+   Stand-ins for Sanganeri hand-block patterns, built from gradients so they
+   cost nothing to ship and inherit `currentColor`-adjacent tints via the
+   --jaipur-* vars. Pair with a solid background colour underneath. */
+
+@utility pattern-blockprint {
+  background-image:
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--jaipur-ink) 22%, transparent) 0 2px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--jaipur-ink) 12%, transparent) 0 4px,
+      transparent 4px
+    );
+  background-position:
+    0 0,
+    16px 16px;
+  background-size: 32px 32px;
+}
+
+@utility pattern-stripe {
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--jaipur-ink) 7%, transparent) 0 8px,
+    transparent 8px 22px
+  );
+}
+
+@utility pattern-checker {
+  background-image:
+    linear-gradient(
+        45deg,
+        color-mix(in srgb, var(--jaipur-ink) 5%, transparent) 25%,
+        transparent 25% 75%,
+        color-mix(in srgb, var(--jaipur-ink) 5%, transparent) 75%
+      ),
+    linear-gradient(
+      45deg,
+      color-mix(in srgb, var(--jaipur-ink) 5%, transparent) 25%,
+      transparent 25% 75%,
+      color-mix(in srgb, var(--jaipur-ink) 5%, transparent) 75%
+    );
+  background-position:
+    0 0,
+    9px 9px;
+  background-size: 18px 18px;
+}
+
+/* Scalloped jharokha edge — a row of half-circles bitten out of a band. */
+@utility edge-scallop {
+  mask-image: radial-gradient(circle at 12px 100%, transparent 11px, black 12px);
+  mask-size: 24px 24px;
+  mask-repeat: repeat-x;
+  mask-position: bottom;
+}
+
+/* -- Marquee --------------------------------------------------------------
+   Two identical tracks scroll side by side so the loop is seamless; the
+   duration is set per-instance via --marquee-duration. */
+
+@keyframes brut-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@utility marquee-track {
+  animation: brut-marquee var(--marquee-duration, 30s) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
   }
 }

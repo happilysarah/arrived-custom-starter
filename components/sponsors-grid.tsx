@@ -1,66 +1,74 @@
 import Image from "next/image";
 
 import type { PublicEventData } from "@/lib/happily/types";
+import { cn } from "@/lib/utils";
 
 import { ordered } from "./helpers";
 
-type SponsorTier = NonNullable<PublicEventData["sponsors"][number]["tier"]>;
+type Sponsor = PublicEventData["sponsors"][number];
+type SponsorTier = NonNullable<Sponsor["tier"]>;
 
 type SponsorsGridProps = {
   sponsors: PublicEventData["sponsors"];
 };
 
-function calculateLogoHeight(tierOrder: number) {
-  const baseSize = 50;
-  const scalingFactor = 0.85;
-  return baseSize * Math.pow(scalingFactor, tierOrder);
-}
-
-function calculateMaxWidth(logoHeight: number) {
-  return logoHeight * 5;
+/**
+ * Logo box height by tier depth. Top tier gets the biggest cell and each step
+ * down shrinks by 15%, matching the original scale — the framing is new, the
+ * hierarchy isn't.
+ */
+function logoHeight(tierIndex: number) {
+  return 72 * Math.pow(0.85, tierIndex);
 }
 
 function SponsorCard({
   sponsor,
   tierIndex = 0,
 }: {
-  sponsor: PublicEventData["sponsors"][number];
+  sponsor: Sponsor;
   tierIndex?: number;
 }) {
-  const logoHeight = calculateLogoHeight(tierIndex);
-  const maxWidth = calculateMaxWidth(logoHeight);
+  const height = logoHeight(tierIndex);
 
-  const content = (
+  const inner = sponsor.logo_url ? (
+    <Image
+      src={sponsor.logo_url}
+      alt={sponsor.name}
+      width={Math.round(height * 5)}
+      height={Math.round(height)}
+      className="w-auto max-w-full object-contain"
+      style={{ height: `${height}px` }}
+    />
+  ) : (
+    <p className="brut-display text-center text-xl">{sponsor.name}</p>
+  );
+
+  const cell = (
     <div
-      className="relative flex items-center justify-center overflow-hidden"
-      style={{ height: `${logoHeight}px`, maxWidth: `${maxWidth}px` }}
+      className="brut-frame flex w-full items-center justify-center bg-(--jaipur-plaster) px-5 py-5 transition-colors group-hover:bg-(--jaipur-marigold)"
+      style={{ minHeight: `${height + 40}px` }}
     >
-      {sponsor.logo_url ? (
-        <Image
-          src={sponsor.logo_url}
-          alt={sponsor.name}
-          width={Math.round(maxWidth)}
-          height={Math.round(logoHeight)}
-          className="h-full object-contain"
-        />
-      ) : (
-        <p className="text-lg">{sponsor.name}</p>
-      )}
+      {inner}
     </div>
   );
 
   if (sponsor.website) {
     return (
-      <a href={sponsor.website} target="_blank" rel="noopener noreferrer">
-        {content}
+      <a
+        href={sponsor.website}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group block"
+      >
+        {cell}
       </a>
     );
   }
 
-  return content;
+  return <div className="group">{cell}</div>;
 }
 
-function extractTiers(sponsors: PublicEventData["sponsors"]): SponsorTier[] {
+function extractTiers(sponsors: Sponsor[]): SponsorTier[] {
   const seen = new Map<number, SponsorTier>();
   for (const sponsor of sponsors) {
     if (sponsor.tier && !seen.has(sponsor.tier.id)) {
@@ -70,23 +78,58 @@ function extractTiers(sponsors: PublicEventData["sponsors"]): SponsorTier[] {
   return ordered([...seen.values()]);
 }
 
+function TierRow({
+  label,
+  sponsors,
+  tierIndex = 0,
+}: {
+  label?: string;
+  sponsors: Sponsor[];
+  tierIndex?: number;
+}) {
+  if (!sponsors.length) return null;
+
+  return (
+    <div className="w-full">
+      {label ? (
+        <div className="mb-5 flex items-center gap-4">
+          <span className="brut-label brut-frame-flat bg-(--jaipur-indigo) px-3 py-2 text-(--jaipur-plaster)">
+            {label}
+          </span>
+          <span aria-hidden="true" className="h-[3px] flex-1 bg-(--jaipur-ink)" />
+        </div>
+      ) : null}
+
+      <div
+        className={cn(
+          "grid gap-6",
+          // Top tiers get fewer, larger cells; lower tiers pack tighter.
+          tierIndex === 0
+            ? "sm:grid-cols-2 lg:grid-cols-3"
+            : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
+        )}
+      >
+        {sponsors.map((sponsor) => (
+          <SponsorCard
+            key={sponsor.id}
+            sponsor={sponsor}
+            tierIndex={tierIndex}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function SponsorsGrid({ sponsors }: SponsorsGridProps) {
   const tiers = extractTiers(sponsors);
 
   if (tiers.length === 0) {
-    return (
-      <div className="flex flex-col items-center gap-x-4 gap-y-10 pt-12">
-        <div className="flex flex-col items-center justify-center gap-10 sm:flex-row">
-          {ordered(sponsors).map((sponsor) => (
-            <SponsorCard key={sponsor.id} sponsor={sponsor} />
-          ))}
-        </div>
-      </div>
-    );
+    return <TierRow sponsors={ordered(sponsors)} />;
   }
 
-  const sponsorsByTier = new Map<number, PublicEventData["sponsors"]>();
-  const untiered: PublicEventData["sponsors"] = [];
+  const sponsorsByTier = new Map<number, Sponsor[]>();
+  const untiered: Sponsor[] = [];
 
   for (const sponsor of ordered(sponsors)) {
     if (sponsor.tier_id != null) {
@@ -99,35 +142,16 @@ export function SponsorsGrid({ sponsors }: SponsorsGridProps) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-x-4 gap-y-10 pt-12">
-      {tiers.map((tier, tierIndex) => {
-        const tierSponsors = sponsorsByTier.get(tier.id);
-        if (!tierSponsors?.length) return null;
-
-        return (
-          <div key={tier.id}>
-            {/* <h3 className="mb-4 text-lg font-semibold text-center">
-              {tier.name}
-            </h3> */}
-            <div className="flex flex-col items-center justify-center gap-10 sm:flex-row">
-              {tierSponsors.map((sponsor) => (
-                <SponsorCard
-                  key={sponsor.id}
-                  sponsor={sponsor}
-                  tierIndex={tierIndex}
-                />
-              ))}
-            </div>
-          </div>
-        );
-      })}
-      {untiered.length > 0 && (
-        <div className="flex flex-col items-center justify-center gap-10 sm:flex-row">
-          {untiered.map((sponsor) => (
-            <SponsorCard key={sponsor.id} sponsor={sponsor} />
-          ))}
-        </div>
-      )}
+    <div className="flex flex-col gap-12">
+      {tiers.map((tier, tierIndex) => (
+        <TierRow
+          key={tier.id}
+          label={tier.name}
+          sponsors={sponsorsByTier.get(tier.id) ?? []}
+          tierIndex={tierIndex}
+        />
+      ))}
+      <TierRow sponsors={untiered} tierIndex={tiers.length} />
     </div>
   );
 }

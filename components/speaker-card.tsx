@@ -1,104 +1,152 @@
 "use client";
 
-import Image from "next/image";
-
-import type { PublicEventData } from "@/lib/happily/types";
-
+import { Dialog as DialogPrimitive } from "radix-ui";
+import { XIcon } from "lucide-react";
 import { SocialIcon } from "react-social-icons";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Markdown } from "@/components/markdown";
+import type { PublicEventData } from "@/lib/happily/types";
+import { cn } from "@/lib/utils";
+
+import { ArchFrame } from "./arch-frame";
+import { ARCH_CLIP_ID, JharokhaArch } from "./ornament";
 
 type SpeakerCardProps = {
   speaker: PublicEventData["speakers"][number];
+  /** Position in the grid — drives the cycled portrait-panel colour. */
+  index?: number;
 };
 
-export function SpeakerCard({ speaker }: SpeakerCardProps) {
-  const links = [...(speaker.website_url ?? ""), ...speaker.social_urls].filter(
-    Boolean,
+const PANEL_COLORS = [
+  "bg-(--jaipur-pink)",
+  "bg-(--jaipur-marigold)",
+  "bg-(--jaipur-emerald)",
+  "bg-(--jaipur-indigo)",
+  "bg-(--jaipur-terracotta)",
+  "bg-(--happily-violet)",
+];
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word[0] ?? "")
+    .join("")
+    .toUpperCase();
+}
+
+export function SpeakerCard({ speaker, index = 0 }: SpeakerCardProps) {
+  // website_url is a single string, so it has to be listed — not spread, which
+  // would splat it into one entry per character.
+  const links = [speaker.website_url, ...speaker.social_urls].filter(
+    (url): url is string => Boolean(url),
   );
+  const role = [speaker.title, speaker.company].filter(Boolean).join(", ");
+  const panel = PANEL_COLORS[index % PANEL_COLORS.length];
 
   return (
-    <Dialog>
-      <article className="bg-(--event-base-bg) p-5 text-(--event-base-text)">
-        {speaker.image_url ? (
-          <Image
-            src={speaker.image_url}
-            alt=""
-            width={400}
-            height={400}
-            className="mb-4 aspect-square w-full rounded-(--event-border-radius) object-cover"
-          />
-        ) : null}
-        <h3 className="text-xl font-semibold">{speaker.name}</h3>
-        <p className="mt-1 text-sm text-(--event-base-text)/60">
-          {[speaker.title, speaker.company].filter(Boolean).join(", ")}
-        </p>
-        <div className="flex items-center justify-between gap-3 mt-3 ">
-          <div className="flex flex-wrap gap-3 items-center">
-            {links.map((url) => (
-              <SocialIcon
-                key={url}
-                url={url}
-                style={{ width: 40, height: 40 }}
-                className="hover:text-event-secondary-bg-alt"
-                bgColor="transparent"
-                fgColor={"var(--event-secondary-bg)"}
-                target="_blank"
-                rel="noreferrer"
-              />
-            ))}
-          </div>
-          {speaker.bio && (
-            <DialogTrigger className="text-sm font-medium text-(--event-secondary-bg) hover:text-(--event-secondary-bg-alt) transition-colors cursor-pointer">
-              More
-            </DialogTrigger>
+    <DialogPrimitive.Root>
+      <article className="brut-frame flex h-full flex-col bg-(--event-base-bg) text-(--event-base-text)">
+        <div
+          className={cn(
+            "flex items-end justify-center border-b-[3px] border-(--jaipur-ink) px-6 pt-6",
+            panel,
           )}
+        >
+          {speaker.image_url ? (
+            <ArchFrame
+              src={speaker.image_url}
+              sizes="(min-width: 1024px) 20vw, (min-width: 640px) 40vw, 80vw"
+              className="aspect-3/4 w-full max-w-52"
+            />
+          ) : (
+            <div className="relative aspect-3/4 w-full max-w-52">
+              <span
+                className="brut-display flex size-full items-end justify-center bg-(--jaipur-ink)/25 pb-8 text-5xl text-(--jaipur-plaster)"
+                style={{ clipPath: `url(#${ARCH_CLIP_ID})` }}
+              >
+                {initials(speaker.name)}
+              </span>
+              <JharokhaArch
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 size-full text-(--jaipur-ink)"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-1 flex-col p-5">
+          <h3 className="brut-display text-2xl">{speaker.name}</h3>
+          {role ? <p className="brut-label mt-2 opacity-80">{role}</p> : null}
+
+          <div className="mt-auto flex items-center justify-between gap-3 pt-5">
+            <div className="flex flex-wrap items-center gap-1">
+              {links.map((url) => (
+                <SocialIcon
+                  key={url}
+                  url={url}
+                  style={{ width: 34, height: 34 }}
+                  bgColor="transparent"
+                  fgColor="var(--jaipur-ink)"
+                  target="_blank"
+                  rel="noreferrer"
+                />
+              ))}
+            </div>
+
+            {speaker.bio ? (
+              <DialogPrimitive.Trigger className="brut-label brut-frame-flat cursor-pointer bg-(--jaipur-marigold) px-3 py-2 text-(--jaipur-ink) transition-colors hover:bg-(--jaipur-pink) hover:text-(--jaipur-plaster)">
+                Read bio
+              </DialogPrimitive.Trigger>
+            ) : null}
+          </div>
         </div>
       </article>
 
-      <DialogContent className="max-h-162.5 overflow-y-auto border-none shadow-sm sm:border sm:border-(--event-accent-bg)">
-        <DialogDescription className="sr-only">
+      {/* Radix directly rather than components/ui/dialog: that skin renders its
+          own blurred overlay and ghost close button with no way to restyle
+          either per instance, and both read as the opposite of this design.
+          Same approach mobile-menu.tsx takes. */}
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-(--jaipur-ink)/70 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0" />
+        <DialogPrimitive.Content className="fixed top-1/2 left-1/2 z-50 grid max-h-[85vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto border-[4px] border-(--jaipur-ink) bg-(--event-base-bg) text-(--event-base-text) shadow-[10px_10px_0_0_var(--jaipur-ink)] outline-none data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0">
+        <DialogPrimitive.Description className="sr-only">
           Speaker details
-        </DialogDescription>
-        <div className="space-y-3 text-center sm:space-y-4">
+        </DialogPrimitive.Description>
+
+        <DialogPrimitive.Close
+          aria-label="Close"
+          className="brut-frame-flat absolute top-4 right-4 z-10 inline-flex size-9 items-center justify-center bg-(--event-base-bg) text-(--jaipur-ink) transition-colors hover:bg-(--jaipur-marigold)"
+        >
+          <XIcon className="size-4" strokeWidth={3} />
+        </DialogPrimitive.Close>
+
+        <div className={cn("border-b-[3px] border-(--jaipur-ink) p-6", panel)}>
           {speaker.image_url ? (
-            <div className="mx-auto max-w-62.5">
-              <Image
-                src={speaker.image_url}
-                alt=""
-                width={400}
-                height={400}
-                className="aspect-square rounded-(--event-border-radius) object-cover"
-              />
-            </div>
+            <ArchFrame
+              src={speaker.image_url}
+              sizes="160px"
+              className="mx-auto aspect-3/4 w-40"
+            />
           ) : null}
-
-          <DialogTitle className="text-lg font-semibold sm:text-xl">
+          <DialogPrimitive.Title className="brut-display mt-5 text-center text-3xl text-(--jaipur-plaster) [text-shadow:2px_2px_0_var(--jaipur-ink)]">
             {speaker.name}
-          </DialogTitle>
-
-          {speaker.title || speaker.company ? (
-            <p className="text-lg sm:text-xl">
-              {speaker.title && <span>{speaker.title}</span>}
-              {speaker.title && speaker.company && <span>, </span>}
-              {speaker.company && <span>{speaker.company}</span>}
+          </DialogPrimitive.Title>
+          {role ? (
+            <p className="brut-label mt-3 text-center text-(--jaipur-plaster)">
+              {role}
             </p>
           ) : null}
+        </div>
 
+        <div className="space-y-5 p-6">
           {speaker.website_url ? (
-            <p>
+            <p className="text-center">
               <a
                 href={speaker.website_url}
                 target="_blank"
                 rel="noreferrer"
-                className="text-sm hover:underline sm:text-base"
+                className="brut-label border-b-[3px] border-(--jaipur-pink) pb-0.5"
               >
                 {speaker.website_url.replace(/^https?:\/\//, "")}
               </a>
@@ -106,18 +154,20 @@ export function SpeakerCard({ speaker }: SpeakerCardProps) {
           ) : null}
 
           {speaker.bio ? (
-            <Markdown className="text-sm sm:text-base">{speaker.bio}</Markdown>
+            <Markdown className="text-sm leading-relaxed sm:text-base">
+              {speaker.bio}
+            </Markdown>
           ) : null}
 
           {speaker.social_urls.length > 0 ? (
-            <ul className="flex flex-row justify-center">
-              {speaker.social_urls.map((url, i) => (
-                <li key={url} className={i === 0 ? "-ml-2" : ""}>
+            <ul className="flex flex-row justify-center gap-1">
+              {speaker.social_urls.map((url) => (
+                <li key={url}>
                   <SocialIcon
-                    style={{ width: 40, height: 40 }}
+                    style={{ width: 38, height: 38 }}
                     url={url}
                     bgColor="transparent"
-                    fgColor={"var(--event-secondary-bg)"}
+                    fgColor="var(--jaipur-ink)"
                     target="_blank"
                     rel="noreferrer"
                   />
@@ -126,7 +176,8 @@ export function SpeakerCard({ speaker }: SpeakerCardProps) {
             </ul>
           ) : null}
         </div>
-      </DialogContent>
-    </Dialog>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }
