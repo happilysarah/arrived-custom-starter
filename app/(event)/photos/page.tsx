@@ -4,12 +4,13 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/container";
 import { RETREAT_COPY } from "@/components/copy";
 import { text } from "@/components/helpers";
+import { Tape } from "@/components/ornament";
 import { SectionHeading } from "@/components/section-heading";
 import { Sticker } from "@/components/sticker";
 import { getEventId, resolveEventEnv } from "@/lib/happily/config";
 import { getPublicEvent, getPublicPhotos } from "@/lib/happily/queries";
 
-/** Cycled behind each frame so empty/slow tiles still colour-block. */
+/** Cycled behind each frame so a photocopied tile still colour-blocks. */
 const TILE_COLORS = [
   "bg-(--jaipur-pink)",
   "bg-(--jaipur-marigold)",
@@ -49,17 +50,25 @@ export default async function PhotosPage() {
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {gallery.photos.map((photo, index) =>
             photo.media ? (
+              // The print is mounted on coloured stock, inset far enough for
+              // the mount to show — otherwise object-cover hides it entirely.
               <figure
                 key={photo.id}
-                className={`brut-frame relative aspect-4/3 overflow-hidden ${TILE_COLORS[index % TILE_COLORS.length]}`}
+                className={`brut-frame relative p-3 ${index % 2 ? "zine-tilt-a" : "zine-tilt-b"} ${TILE_COLORS[index % TILE_COLORS.length]}`}
               >
-                <Image
-                  src={photo.media.path ?? photo.media.fallback_path}
-                  alt={photo.media.description ?? ""}
-                  fill
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  className="object-cover"
+                <Tape
+                  rotate={index % 2 ? 9 : -9}
+                  className={`-top-3.5 z-20 h-6 w-20 ${index % 2 ? "right-6" : "left-6"}`}
                 />
+                <div className="zine-halftone relative aspect-4/3 w-full overflow-hidden border-[3px] border-(--jaipur-ink)">
+                  <Image
+                    src={photo.media.path ?? photo.media.fallback_path}
+                    alt={photo.media.description ?? ""}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="zine-photocopy object-cover"
+                  />
+                </div>
               </figure>
             ) : null,
           )}

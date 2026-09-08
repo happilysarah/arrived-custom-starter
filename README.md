@@ -79,35 +79,47 @@ If analytics is configured for your event in Happily, the starter automatically 
 - `lib/happily/` — API client and data queries. Leave alone unless you're pulling new fields from the API.
 - `app/globals.css` — global styles. Event-specific colors come from CSS variables (`--event-primary-bg`, `--event-accent-text`, etc.) set automatically from your event's design tokens.
 
-## This fork: Pink City Retreat (maximalist brutalism)
+## This fork: Pink City Retreat (cut-and-paste zine)
 
 This copy of the starter has been redesigned as a Jaipur retreat site. Content still
 comes from the Happily CMS — only the presentation layer changed.
 
-**The look:** square corners everywhere, 3–4px ink borders with hard offset shadows,
-Rajasthani colour blocking (Jaipur pink, marigold, Sanganeri indigo, emerald,
-terracotta, plus Happily's own violet), oversized Archivo Black headings, Space Mono
-labels, block-print background fills and scrolling marquee bands. Photos are clipped
-into a *jharokha* arch — the cusped Rajasthani window shape.
+**The look:** a photocopied zine built on a hard-edged brutalist frame. Square corners,
+3–4px ink borders and offset shadows underneath; torn paper, tape, halftone screens and
+ransom-note lettering on top. Rajasthani colour blocking (Jaipur pink, marigold,
+Sanganeri indigo, emerald, terracotta, plus Happily's own violet) on aged newsprint.
+Photos are clipped into a *jharokha* arch — the cusped Rajasthani window shape.
+
+Three devices carry the zine treatment, one per principle:
+
+| Principle | How it's built |
+| --- | --- |
+| Scissors, not software | `Tape`, `TornEdge` and the `zine-tilt-*` utilities. Cards, photos and section bands are tilted, taped and torn so the seams show. |
+| Copy machine chic | `zine-photocopy` (grayscale + lifted contrast), `zine-halftone` (a dot screen) and `zine-grain` (toner noise on flat bands). |
+| Type talks back | Four faces on one page: Archivo Black cut into `RansomText` headings, Special Elite as the typed voice, Caveat in the margins, Open Sans for reading. |
 
 **Where the design lives:**
 
 - `components/theme.ts` — the nine palette values, mapped onto the `--event-*` CSS
   variables in `app/(event)/layout.tsx`.
-- `app/globals.css` — the brutalist layer: `brut-frame`, `brut-frame-lg`,
-  `brut-frame-flat`, `brut-lift`, `brut-display`, `brut-label`, the
-  `pattern-blockprint` / `pattern-stripe` / `pattern-checker` fills, and the marquee
-  keyframes. Ornament colours live here as `--jaipur-*` / `--happily-*` variables.
-- `components/ornament.tsx` — the arch, block-print stamp, sunburst and scallop
-  motifs, plus the shared arch clip path.
+- `app/globals.css` — two stacked layers. The brutalist one (`brut-frame`,
+  `brut-lift`, `brut-display`, `brut-label`, the pattern fills, marquee keyframes)
+  and the zine one (`zine-photocopy`, `zine-halftone`, `zine-grain`, `zine-tilt-*`,
+  `zine-tape-strip`, `zine-cut-edge`, `zine-hand`). Ornament colours live here as
+  `--jaipur-*`, `--zine-*` and `--happily-*` variables.
+- `components/ransom-text.tsx` — headings cut from other pages. The per-letter
+  face, colour and tilt are derived from the character and its index, never from
+  `Math.random`, so the server and client render identical markup.
+- `components/ornament.tsx` — arch, block-print stamp, sunburst, scallop, jagged
+  burst, torn edge and tape, plus the shared arch clip path.
 - `components/arch-frame.tsx` — an image clipped to the arch, with its ink outline
   and offset slab.
-- `components/marquee.tsx`, `components/sticker.tsx` — the ticker strips and the
-  rotated pasted-on labels.
+- `components/marquee.tsx`, `components/sticker.tsx` — ticker strips and rotated
+  pasted-on labels.
 - `components/copy.ts` — retreat-voice fallbacks for section headings, nav labels and
   marquee phrases. **Anything the CMS supplies always wins**; these only fill gaps.
 
-**Two deliberate deviations from the stock starter:**
+**Three deliberate deviations from the stock starter:**
 
 1. **The palette is pinned, not read from `event.styles`.** The design depends on
    specific colour relationships, and a default CMS palette of `#171717` on `#ffffff`
@@ -115,13 +127,17 @@ into a *jharokha* arch — the cusped Rajasthani window shape.
    `JAIPUR_THEME` lookups in `app/(event)/layout.tsx` for
    `styleValue(styles, "<key>", JAIPUR_THEME.<key>)`.
 2. **Three components use `radix-ui` primitives directly** instead of the
-   `components/ui/` skins — the mobile menu (as before), the agenda's day tabs, and
-   the speaker bio dialog. Those skins' active-state and overlay rules are
-   group-scoped and out-specify anything passed via `className`, so styling them
-   through the wrapper silently did nothing. `components/ui/` is left untouched and
-   upgrade-safe.
+   `components/ui/` skins — the mobile menu, the agenda's day tabs, and the speaker
+   bio dialog. Those skins' active-state and overlay rules are group-scoped and
+   out-specify anything passed via `className`, so styling them through the wrapper
+   silently did nothing. `components/ui/` is left untouched and upgrade-safe.
+3. **Photos are photocopied, not duotoned.** An earlier pass multiplied a grayscale
+   image onto the coloured panel behind it. That crushed dark photos to black and blew
+   light ones to white, and how a given photo lands isn't something a CMS user can be
+   asked to control. The coloured panel now shows *around* the cutting instead.
 
-Motion (marquees, button press) is disabled under `prefers-reduced-motion`.
+Motion (marquees, button press) is disabled under `prefers-reduced-motion`; the paste-up
+tilts are layout rather than motion, so they stay.
 
 ## Customizing
 

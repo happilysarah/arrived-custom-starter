@@ -5,7 +5,8 @@ import { Container } from "./container";
 import { RETREAT_COPY } from "./copy";
 import { EventDetails } from "./event-details";
 import { eventDateRange, hasText, heroImage, text } from "./helpers";
-import { BlockPrintStamp, SunBurst } from "./ornament";
+import { BlockPrintStamp, JaggedBurst, SunBurst, Tape } from "./ornament";
+import { RansomText } from "./ransom-text";
 import { ScrollLink } from "./scroll-link";
 import { Sticker } from "./sticker";
 
@@ -13,17 +14,6 @@ type HeroSectionProps = {
   event: PublicEventData["event"];
   formActive?: boolean;
 };
-
-/**
- * Title words cycle through these. All four clear 4.5:1 against the plaster
- * base, so the cycling is decorative without costing legibility.
- */
-const TITLE_COLORS = [
-  "text-(--jaipur-ink)",
-  "text-(--jaipur-pink)",
-  "text-(--jaipur-indigo)",
-  "text-(--jaipur-terracotta)",
-];
 
 export function HeroSection({ event, formActive }: HeroSectionProps) {
   const content = event.content;
@@ -36,7 +26,6 @@ export function HeroSection({ event, formActive }: HeroSectionProps) {
   const showVideo = heroSectionType === "video" && Boolean(content.heroVideo);
   const panelImage = heroSectionType === "image" ? image : null;
 
-  const titleWords = event.name.trim().split(/\s+/).filter(Boolean);
   const dateRange = eventDateRange(event);
   const location = text(event.location, RETREAT_COPY.location);
 
@@ -67,7 +56,11 @@ export function HeroSection({ event, formActive }: HeroSectionProps) {
       {/* Decorative fill for the no-media case — and harmless behind media. */}
       <SunBurst
         aria-hidden="true"
-        className="pointer-events-none absolute -top-40 -right-40 -z-10 size-[36rem] text-(--jaipur-marigold)/35"
+        className="pointer-events-none absolute -top-40 -right-40 -z-10 size-[26rem] text-(--jaipur-marigold)/35 sm:size-[36rem]"
+      />
+      <JaggedBurst
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-16 -left-28 -z-10 size-64 text-(--jaipur-marigold) sm:size-80"
       />
 
       <Container
@@ -87,20 +80,13 @@ export function HeroSection({ event, formActive }: HeroSectionProps) {
             <span className="brut-label brut-frame-flat bg-(--jaipur-indigo) px-3 py-2 text-(--jaipur-plaster)">
               {location}
             </span>
-            <span className="brut-label brut-frame-flat bg-(--event-base-bg) px-3 py-2">
+            <span className="zine-hand zine-tilt-b text-2xl text-(--zine-shock)">
               {text(content.companyName, event.type ?? RETREAT_COPY.eyebrow)}
             </span>
           </div>
 
-          <h1 className="brut-display mt-6 text-5xl sm:text-7xl lg:text-8xl">
-            {titleWords.map((word, index) => (
-              <span
-                key={`${word}-${index}`}
-                className={`mr-3 inline-block ${TITLE_COLORS[index % TITLE_COLORS.length]}`}
-              >
-                {word}
-              </span>
-            ))}
+          <h1 className="mt-7 text-5xl leading-[1.45] sm:text-6xl lg:text-7xl">
+            <RansomText>{event.name}</RansomText>
           </h1>
 
           <EventDetails event={event} className="mt-7" />
@@ -130,7 +116,10 @@ export function HeroSection({ event, formActive }: HeroSectionProps) {
         </div>
 
         {panelImage ? (
-          <div className="relative lg:col-span-5">
+          <div className="zine-tilt-c relative lg:col-span-5">
+            <Tape rotate={-11} className="-top-3 left-1/2 z-20 -translate-x-1/2" />
+            <Tape rotate={7} className="bottom-4 -left-8 z-20" />
+            <Tape rotate={-6} className="bottom-16 -right-9 z-20" />
             <ArchFrame
               src={panelImage}
               priority

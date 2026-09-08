@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 import { ArchFrame } from "./arch-frame";
 import { Container } from "./container";
+import { Tape } from "./ornament";
 import { SectionHeading } from "./section-heading";
 
 type ContentSectionProps = {
@@ -18,6 +19,8 @@ type ContentSectionProps = {
   wrapperClassName?: string;
   /** Arch-clips the image instead of framing it square. */
   arch?: boolean;
+  /** Colour class for the torn edge overhanging this band. */
+  tornEdge?: string;
 };
 
 export function ContentSection({
@@ -29,10 +32,12 @@ export function ContentSection({
   reverse = false,
   wrapperClassName,
   arch = false,
+  tornEdge,
 }: ContentSectionProps) {
   return (
     <Container
       id={id}
+      tornEdge={tornEdge}
       wrapperClassName={cn(
         "border-b-[4px] border-(--jaipur-ink)",
         wrapperClassName,
@@ -48,25 +53,30 @@ export function ContentSection({
 
       {image ? (
         arch ? (
-          <ArchFrame
-            src={image}
-            shadow
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            className={cn("aspect-3/4 w-full", reverse && "lg:order-1")}
-          />
+          <div className={cn("zine-tilt-b relative", reverse && "lg:order-1")}>
+            <Tape rotate={-9} className="-top-4 left-8 z-20" />
+            <ArchFrame
+              src={image}
+              shadow
+              photocopy
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="aspect-3/4 w-full"
+            />
+          </div>
         ) : (
-          <div className={cn("relative", reverse && "lg:order-1")}>
+          <div className={cn("zine-tilt-a relative", reverse && "lg:order-1")}>
+            <Tape rotate={8} className="-top-4 right-10 z-20" />
             <div
               aria-hidden="true"
               className="absolute inset-0 translate-x-3 translate-y-3 bg-(--jaipur-ink)"
             />
-            <div className="brut-frame-flat relative aspect-4/3 w-full overflow-hidden bg-(--jaipur-indigo)">
+            <div className="brut-frame-flat zine-halftone relative aspect-4/3 w-full overflow-hidden bg-(--jaipur-plaster)">
               <Image
                 src={image}
                 alt=""
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover"
+                className="zine-photocopy object-cover"
               />
             </div>
           </div>

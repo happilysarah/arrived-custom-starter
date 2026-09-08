@@ -12,6 +12,11 @@ type ArchFrameProps = {
   priority?: boolean;
   /** Adds the offset ink slab behind the arch — the clipped drop shadow. */
   shadow?: boolean;
+  /**
+   * Runs the photo through the copier: grayscale plus lifted contrast. Off for
+   * the hero, where the one full-colour image anchors the palette.
+   */
+  photocopy?: boolean;
   /** Applied to the outer wrapper; set the width and aspect ratio here. */
   className?: string;
 };
@@ -32,6 +37,7 @@ export function ArchFrame({
   sizes,
   priority = false,
   shadow = false,
+  photocopy = false,
   className,
 }: ArchFrameProps) {
   const clip = { clipPath: `url(#${ARCH_CLIP_ID})` };
@@ -47,7 +53,7 @@ export function ArchFrame({
       ) : null}
 
       <div
-        className="relative size-full overflow-hidden bg-(--jaipur-indigo)"
+        className="zine-halftone relative size-full overflow-hidden bg-(--jaipur-indigo)"
         style={clip}
       >
         <Image
@@ -56,7 +62,7 @@ export function ArchFrame({
           fill
           priority={priority}
           sizes={sizes}
-          className="object-cover"
+          className={cn("object-cover", photocopy && "zine-photocopy")}
         />
       </div>
 

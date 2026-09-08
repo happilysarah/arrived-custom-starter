@@ -9,13 +9,16 @@ import type { PublicEventData } from "@/lib/happily/types";
 import { cn } from "@/lib/utils";
 
 import { ArchFrame } from "./arch-frame";
-import { ARCH_CLIP_ID, JharokhaArch } from "./ornament";
+import { ARCH_CLIP_ID, JharokhaArch, Tape } from "./ornament";
 
 type SpeakerCardProps = {
   speaker: PublicEventData["speakers"][number];
   /** Position in the grid — drives the cycled portrait-panel colour. */
   index?: number;
 };
+
+/** Alternating lean, so the grid reads as separately glued cuttings. */
+const TILTS = ["zine-tilt-c", "zine-tilt-b", "zine-tilt-a"];
 
 const PANEL_COLORS = [
   "bg-(--jaipur-pink)",
@@ -43,10 +46,20 @@ export function SpeakerCard({ speaker, index = 0 }: SpeakerCardProps) {
   );
   const role = [speaker.title, speaker.company].filter(Boolean).join(", ");
   const panel = PANEL_COLORS[index % PANEL_COLORS.length];
+  const tilt = TILTS[index % TILTS.length];
 
   return (
     <DialogPrimitive.Root>
-      <article className="brut-frame flex h-full flex-col bg-(--event-base-bg) text-(--event-base-text)">
+      <article
+        className={cn(
+          "brut-frame relative flex h-full flex-col bg-(--event-base-bg) text-(--event-base-text)",
+          tilt,
+        )}
+      >
+        <Tape
+          rotate={index % 2 ? 9 : -10}
+          className={cn("-top-3.5 z-20 h-6 w-20", index % 2 ? "right-6" : "left-5")}
+        />
         <div
           className={cn(
             "flex items-end justify-center border-b-[3px] border-(--jaipur-ink) px-6 pt-6",
@@ -56,6 +69,7 @@ export function SpeakerCard({ speaker, index = 0 }: SpeakerCardProps) {
           {speaker.image_url ? (
             <ArchFrame
               src={speaker.image_url}
+              photocopy
               sizes="(min-width: 1024px) 20vw, (min-width: 640px) 40vw, 80vw"
               className="aspect-3/4 w-full max-w-52"
             />
@@ -125,6 +139,7 @@ export function SpeakerCard({ speaker, index = 0 }: SpeakerCardProps) {
           {speaker.image_url ? (
             <ArchFrame
               src={speaker.image_url}
+              photocopy
               sizes="160px"
               className="mx-auto aspect-3/4 w-40"
             />

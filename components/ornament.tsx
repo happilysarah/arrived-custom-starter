@@ -121,3 +121,96 @@ export function ScallopBar({ className }: { className?: string }) {
     </svg>
   );
 }
+
+/**
+ * Deterministic pseudo-random sequence. Torn edges and burst spikes need to
+ * look hand-cut but must render identically on the server and the client, so
+ * they're generated once from a fixed seed rather than from Math.random.
+ */
+function seeded(seed: number) {
+  let state = seed;
+  return () => {
+    state = (state * 1103515245 + 12345) & 0x7fffffff;
+    return state / 0x7fffffff;
+  };
+}
+
+/** Ragged bottom edge of a pasted-down sheet. */
+function tornPath(width: number, base: number, amplitude: number, step: number) {
+  const rnd = seeded(9);
+  const points: string[] = [];
+  for (let x = width; x >= 0; x -= step) {
+    points.push(`L${x},${(base + (rnd() - 0.5) * amplitude * 2).toFixed(1)}`);
+  }
+  return `M0,0 H${width} V${base} ${points.join(" ")} Z`;
+}
+
+const TORN_D = tornPath(1200, 13, 8, 26);
+
+/**
+ * A torn paper edge, filled with currentColor. Set it to the colour of the
+ * band *above* and pin it to the top of the next one, so the sheets overlap
+ * the way a paste-up does.
+ */
+export function TornEdge({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 1200 20"
+      preserveAspectRatio="none"
+      className={className}
+      fill="currentColor"
+    >
+      <path d={TORN_D} />
+    </svg>
+  );
+}
+
+/** Jagged starburst — the spiked "explosion" cut from coloured stock. */
+export function JaggedBurst({ className }: { className?: string }) {
+  const rnd = seeded(23);
+  const spikes = 11;
+  const points: string[] = [];
+  for (let i = 0; i < spikes * 2; i++) {
+    const angle = (i / (spikes * 2)) * Math.PI * 2 - Math.PI / 2;
+    const radius = i % 2 === 0 ? 46 + rnd() * 8 : 15 + rnd() * 10;
+    points.push(
+      `${(50 + Math.cos(angle) * radius).toFixed(1)},${(50 + Math.sin(angle) * radius).toFixed(1)}`,
+    );
+  }
+
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 100 100"
+      className={className}
+      fill="currentColor"
+    >
+      <polygon points={points.join(" ")} />
+    </svg>
+  );
+}
+
+/**
+ * A strip of tape holding a cutting down. Absolutely positioned by the caller;
+ * the clip-path gives it the torn ends real tape has.
+ */
+export function Tape({
+  className,
+  rotate = -8,
+}: {
+  className?: string;
+  rotate?: number;
+}) {
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        transform: `rotate(${rotate}deg)`,
+        clipPath:
+          "polygon(4% 0, 97% 3%, 100% 96%, 93% 100%, 2% 97%, 0 8%)",
+      }}
+      className={`zine-tape-strip pointer-events-none absolute block h-7 w-24 ${className ?? ""}`}
+    />
+  );
+}

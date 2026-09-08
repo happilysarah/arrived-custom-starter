@@ -1,6 +1,12 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import { Archivo_Black, Open_Sans, Space_Mono } from "next/font/google";
+import {
+  Archivo_Black,
+  Caveat,
+  Open_Sans,
+  Space_Mono,
+  Special_Elite,
+} from "next/font/google";
 import "../globals.css";
 
 import { EventShell } from "@/components/event-shell";
@@ -30,6 +36,21 @@ const archivoBlack = Archivo_Black({
 // Mono carries the small stuff: eyebrows, chips, agenda times, field labels.
 const spaceMono = Space_Mono({
   variable: "--font-space-mono",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
+// Typewriter and handwriting. A zine puts mismatched type on one page on
+// purpose — cut headlines, typed body, pen in the margin — so these are a
+// third and fourth voice, not decoration.
+const specialElite = Special_Elite({
+  variable: "--font-special-elite",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const caveat = Caveat({
+  variable: "--font-caveat",
   subsets: ["latin"],
   weight: ["400", "700"],
 });
@@ -82,7 +103,7 @@ export default async function EventLayout({
   return (
     <html
       lang="en"
-      className={`${openSans.variable} ${archivoBlack.variable} ${spaceMono.variable} ${openSans.className} h-full antialiased`}
+      className={`${openSans.variable} ${archivoBlack.variable} ${spaceMono.variable} ${specialElite.variable} ${caveat.variable} ${openSans.className} h-full antialiased`}
     >
       <body style={eventVars} className="min-h-full flex flex-col">
         <OrnamentDefs />

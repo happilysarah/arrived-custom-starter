@@ -13,6 +13,8 @@
   --font-sans: var(--font-open-sans);
   --font-mono: var(--font-space-mono), ui-monospace, monospace;
   --font-display: var(--font-archivo-black), var(--font-open-sans), sans-serif;
+  --font-typewriter: var(--font-special-elite), var(--font-space-mono), ui-monospace, monospace;
+  --font-hand: var(--font-caveat), ui-rounded, cursive;
   --font-heading: var(--font-display);
   --font-body: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -147,10 +149,16 @@
   /* Ornament palette — fixed accents that sit alongside the --event-* pairs.
      These are motif colours (block-print fills, arch outlines, sticker
      backgrounds), not theme slots, so they don't belong in event.styles. */
+  /* Declared here as well as in @theme: `@theme inline` feeds the generated
+     `font-*` utilities but does not emit the variables themselves, and the
+     hand-written utilities below reference them directly. */
+  --font-typewriter: var(--font-special-elite), ui-monospace, monospace;
+  --font-hand: var(--font-caveat), ui-rounded, cursive;
+
   --jaipur-ink: #150f0b;
-  --jaipur-plaster: #f7eedd;
-  --jaipur-pink: #d81e5b;
-  --jaipur-marigold: #f5b301;
+  --jaipur-plaster: #f2e9d6;
+  --jaipur-pink: #e31b62;
+  --jaipur-marigold: #efb705;
   --jaipur-indigo: #1b2a6b;
   --jaipur-emerald: #0b7a5c;
   --jaipur-terracotta: #e2653c;
@@ -232,13 +240,25 @@
   line-height: 0.92;
 }
 
+/* The typed voice: everything small and functional is set on a typewriter,
+   which is what a zine had to hand. Tabular data that needs to line up (agenda
+   times) uses `font-mono` instead — Space Mono is still loaded for that. */
 @utility brut-label {
-  font-family: var(--font-mono);
-  font-weight: 700;
+  font-family: var(--font-typewriter);
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.6875rem;
-  line-height: 1.2;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+/* Pen in the margin. */
+@utility zine-hand {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1.1;
 }
 
 /* -- Block-print fills ----------------------------------------------------
@@ -321,4 +341,123 @@
   .marquee-track {
     animation: none;
   }
+}
+
+/* ==========================================================================
+   ZINE TREATMENT
+   --------------------------------------------------------------------------
+   The layer above builds hard-edged frames; this one makes them look cut out,
+   glued down and run through a photocopier. Three devices carry it:
+   photocopy contrast + grain, torn/taped paper edges, and ransom-note type
+   (see components/ransom-text.tsx).
+   ========================================================================== */
+
+:root {
+  /* Hotter magenta than the base pink — the "shocking pink" of a two-colour
+     riso/photocopy run, used for ransom letters and hand annotations. */
+  --zine-shock: #ec2c7a;
+  /* Aged newsprint, a shade greyer than the plaster ground. */
+  --zine-newsprint: #f2e9d6;
+  /* Tape: warm, translucent, slightly yellowed. */
+  --zine-tape: rgb(226 205 143 / 78%);
+}
+
+/* -- Photocopy ------------------------------------------------------------ */
+
+/* Grayscale plus a lift in contrast is what a third-generation photocopy does
+   to a photograph. Deliberately no blend mode: multiplying onto the panel
+   behind crushed dark images to black and blew light ones to white, and how a
+   photo lands is not something the CMS can be asked to control. The coloured
+   panel stays visible around the cutting instead, which is where a two-colour
+   zine puts its ink anyway. */
+@utility zine-photocopy {
+  filter: grayscale(1) contrast(1.3) brightness(1.04);
+}
+
+/* Toner grain. Sits over the element and never intercepts clicks. */
+@utility zine-grain {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.16;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
+  }
+}
+
+/* The dot screen a halftone image breaks into when it's copied too many
+   times. Fine enough to read as texture, coarse enough to see. */
+@utility zine-halftone {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.35;
+    mix-blend-mode: multiply;
+    background-image: radial-gradient(
+      circle at 50% 50%,
+      var(--jaipur-ink) 0 0.6px,
+      transparent 0.9px
+    );
+    background-size: 4px 4px;
+  }
+}
+
+/* -- Glued down -----------------------------------------------------------
+   Nothing in a paste-up sits perfectly square. Three fixed angles rather than
+   random ones: they need to survive a server render unchanged. */
+
+@utility zine-tilt-a {
+  transform: rotate(-1.4deg);
+}
+
+@utility zine-tilt-b {
+  transform: rotate(1.1deg);
+}
+
+@utility zine-tilt-c {
+  transform: rotate(-0.7deg);
+}
+
+/* A cut-paper edge: irregular enough not to read as a pattern, applied to the
+   bottom of a pasted element. */
+@utility zine-cut-edge {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 6px),
+    92% 100%,
+    84% calc(100% - 5px),
+    73% calc(100% - 1px),
+    61% calc(100% - 7px),
+    49% calc(100% - 2px),
+    38% calc(100% - 6px),
+    26% calc(100% - 1px),
+    15% calc(100% - 7px),
+    6% calc(100% - 3px),
+    0 calc(100% - 6px)
+  );
+}
+
+/* Ransom-note letter: a cutting from another page, pasted slightly askew. */
+@utility zine-letter {
+  display: inline-block;
+  padding: 0.02em 0.1em;
+  line-height: 0.95;
+}
+
+/* Tape: a translucent strip with the darker edge lines real tape shows. */
+@utility zine-tape-strip {
+  background-color: var(--zine-tape);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 45%),
+    inset 0 -1px 0 rgb(0 0 0 / 12%),
+    0 1px 2px rgb(0 0 0 / 18%);
 }

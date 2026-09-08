@@ -12,20 +12,21 @@
  * `layout.tsx` back to `styleValue(styles, "<key>", JAIPUR_THEME.<key>)`.
  */
 export const JAIPUR_THEME = {
-  /** Jaipur pink — highest-emphasis CTAs (nav + form submit). */
-  primaryBg: "#D81E5B",
+  /** Jaipur pink, pushed hotter toward a two-colour print run's magenta —
+   *  highest-emphasis CTAs (nav + form submit). */
+  primaryBg: "#E31B62",
   primaryText: "#FFF6E9",
 
   /** Sanganeri indigo — quieter surfaces (footer, inverted bands). */
   secondaryBg: "#1B2A6B",
   secondaryText: "#F7EEDD",
 
-  /** Marigold — the loud highlight bands (hero CTA, register section). */
-  accentBg: "#F5B301",
+  /** Marigold, a shade more mustard — the loud highlight bands. */
+  accentBg: "#EFB705",
   accentText: "#150F0B",
 
-  /** Lime-washed plaster and ink — the page's rest state. */
-  baseBg: "#F7EEDD",
+  /** Aged newsprint and toner black — the page's rest state. */
+  baseBg: "#F2E9D6",
   baseText: "#150F0B",
 
   /** Brutalism has no radius. Every corner is square, on purpose. */

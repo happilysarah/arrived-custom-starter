@@ -67,6 +67,7 @@ export function EventPage({ eventData, eventId, env }: EventPageProps) {
           title={text(content.aboutTitle, sections.about)}
           description={content.aboutDescription}
           image={content.aboutImage}
+          tornEdge="text-(--event-base-bg)"
           arch
         />
       ) : null}
@@ -75,6 +76,7 @@ export function EventPage({ eventData, eventId, env }: EventPageProps) {
         <Container
           id="agenda"
           wrapperClassName={`pattern-stripe bg-(--event-base-bg) ${BAND}`}
+          tornEdge="text-(--event-base-bg)"
         >
           <SectionHeading
             index={sectionIndex("agenda")}
@@ -95,7 +97,8 @@ export function EventPage({ eventData, eventId, env }: EventPageProps) {
       {speakers.length ? (
         <Container
           id="speakers"
-          wrapperClassName={`bg-(--jaipur-indigo) text-(--jaipur-plaster) ${BAND}`}
+          wrapperClassName={`zine-grain bg-(--jaipur-indigo) text-(--jaipur-plaster) ${BAND}`}
+          tornEdge="text-(--jaipur-indigo)"
         >
           <SectionHeading
             index={sectionIndex("speakers")}
@@ -112,13 +115,16 @@ export function EventPage({ eventData, eventId, env }: EventPageProps) {
       {form ? (
         <Container
           id="register"
-          wrapperClassName={`relative isolate overflow-hidden bg-(--event-accent-bg) text-(--event-accent-text) ${BAND}`}
+          wrapperClassName={`zine-grain isolate bg-(--event-accent-bg) text-(--event-accent-text) ${BAND}`}
+          tornEdge="text-(--event-accent-bg)"
           className="flex max-w-4xl flex-col items-center text-center"
         >
-          <SunBurst
+          <div
             aria-hidden="true"
-            className="pointer-events-none absolute -top-56 left-1/2 -z-10 size-[44rem] -translate-x-1/2 text-(--jaipur-ink)/8"
-          />
+            className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+          >
+            <SunBurst className="absolute -top-56 left-1/2 size-[44rem] -translate-x-1/2 text-(--jaipur-ink)/8" />
+          </div>
 
           <Sticker rotate={-5} className="bg-(--jaipur-pink) text-(--jaipur-plaster)">
             {RETREAT_COPY.sections.register}
@@ -155,6 +161,7 @@ export function EventPage({ eventData, eventId, env }: EventPageProps) {
           title={text(content.companyAboutTitle, sections.host)}
           description={content.companyAboutDescription}
           image={content.companyAboutImage}
+          tornEdge="text-(--event-base-bg)"
           reverse
         />
       ) : null}
@@ -163,6 +170,7 @@ export function EventPage({ eventData, eventId, env }: EventPageProps) {
         <Container
           id="sponsors"
           wrapperClassName={`pattern-checker bg-(--event-base-bg) ${BAND}`}
+          tornEdge="text-(--event-base-bg)"
         >
           <SectionHeading
             index={sectionIndex("sponsors")}
@@ -178,7 +186,8 @@ export function EventPage({ eventData, eventId, env }: EventPageProps) {
       {faqs.length ? (
         <Container
           id="faqs"
-          wrapperClassName={`bg-(--jaipur-emerald) text-(--jaipur-plaster) ${BAND}`}
+          wrapperClassName={`zine-grain bg-(--jaipur-emerald) text-(--jaipur-plaster) ${BAND}`}
+          tornEdge="text-(--jaipur-emerald)"
         >
           <SectionHeading
             index={sectionIndex("faqs")}
